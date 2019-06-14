@@ -88,5 +88,5 @@ struct ath9k_csi {
 
 void   csi_record_payload(void* data, u_int16_t data_len);
 
-void   csi_record_status(struct ath_hw *hw, struct ath_rx_status *rxs,struct ar9003_rxs *rxsp,void* data); 
+void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar9003_rxs *rxsp,void* data, u_int16_t data_len);
 

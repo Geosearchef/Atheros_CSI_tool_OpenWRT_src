@@ -61,18 +61,18 @@
 +	data_len = rxs->rs_datalen;
 +	data_addr = buf_addr + 48;
 +	        
-+	if (rxsp->status11 & AR_CRCErr){
++	//if ((rxsp->status11 & AR_CRCErr) > 0 || (rxsp->status11 & AR_PostDelimCRCErr) == 0) {// AR_CRCErr is set if last subframe AND crc err is caugt
 + 	      if (rxs->rs_rate >= 0x80){
 +	            csi_record_payload(data_addr,data_len);
-+                    csi_record_status(ah,rxs,rxsp,data_addr);
++               csi_record_status(ah,rxs,rxsp,data_addr,data_len);
 +	        }
-+        }else{
-+            if  (rxs->rs_more == 1)
-+                csi_record_payload(data_addr,data_len);
-+
-+            if (rxs->rs_rate >= 0x80)
-+                csi_record_status(ah,rxs,rxsp,data_addr);
-+     	}
++   //     }else{
++   //         if  (rxs->rs_more == 1) {
++   //             csi_record_payload(data_addr,data_len);}
++   //
++   //         if (rxs->rs_rate >= 0x80) {
++   //             csi_record_status(ah,rxs,rxsp,data_addr); }
++   //  	}
  
  	return 0;
  }

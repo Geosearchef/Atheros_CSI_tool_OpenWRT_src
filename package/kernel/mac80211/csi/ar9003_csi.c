@@ -239,7 +239,7 @@ void csi_record_payload(void* data, u_int16_t data_len)
 EXPORT_SYMBOL(csi_record_payload);
 
 //Record the status of the packet
-void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar9003_rxs *rxsp,void* data)
+void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar9003_rxs *rxsp,void* data, u_int16_t data_len)
 {
     struct ath9k_csi* csi;
 
@@ -255,10 +255,22 @@ void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar90
     rx_not_sounding               = (rxsp->status4 & AR_rx_not_sounding) ? 1 : 0;
     rx_hw_upload_data_valid       = (rxsp->status4 & AR_hw_upload_data_valid) ? 1 : 0;
     rx_hw_upload_data_type        = MS(rxsp->status11, AR_hw_upload_data_type);
-   
+    
+    //Filter for ICMP echo with 58 bytes (64 byte reply)
+    //if(data_len != 124) {
+    //    return;
+    //}
+    
+    printk("Message size: %d", data_len);
+    printk("Not sounding: %d", rx_not_sounding);
+    printk("rs_phyerr: %d", rxs->rs_phyerr);
+    printk("rx_hw_upload_data: %d", rx_hw_upload_data);
+    printk("rx_hw_upload_data_valid: %d", rx_hw_upload_data_valid);
+    printk("rx_hw_upload_data_type: %d", rx_hw_upload_data_type);
     /* filter out some packets without CSI value (e.g., the beacon)*/
     if(rxs->rs_phyerr == 0 && rx_hw_upload_data == 0 &&
                 rx_hw_upload_data_valid == 0 && rx_hw_upload_data_type == 0){
+        printk("CSI: filtered packet without CSI, discarding");
         return;
     }
 
@@ -315,7 +327,11 @@ void csi_record_status(struct ath_hw *ah, struct ath_rx_status *rxs, struct ar90
             csi->pkt_status.csi_len = rxs->rs_datalen;
             memcpy((void*)(csi->csi_buf),data,rxs->rs_datalen);
         }else {
+            printk("no csi, not copying csi");
             csi->pkt_status.csi_len = 0;
+            //printk("No csi, copying anyways");
+            //csi->pkt_status.csi_len = rxs->rs_datalen;
+            //memcpy((void*)(csi->csi_buf),data,rxs->rs_datalen);
         }
         
         csi_valid = 0;                                  // update 
